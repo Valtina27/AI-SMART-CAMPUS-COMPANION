@@ -1,0 +1,2841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Smart Campus Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Splash Screen */
+        #splash {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: linear-gradient(135deg, #81d4fa 0%, #4fc3f7 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            animation: fadeOut 1s ease-out 3.5s forwards;
+        }
+
+        .logo-container {
+            position: relative;
+            animation: logoAnimation 3s ease-in-out;
+        }
+
+        .logo-container img {
+            width: 200px;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+            animation: pulse 2s infinite;
+        }
+
+        .splash-text {
+            margin-top: 30px;
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: rgb(3, 103, 173);
+            text-align: center;
+            animation: slideUp 2s ease-out;
+            text-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        @keyframes logoAnimation {
+            0% { transform: scale(0) rotate(360deg); opacity: 0; }
+            50% { transform: scale(1.1) rotate(0deg); opacity: 0.8; }
+            100% { transform: scale(1) rotate(0deg); opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        @keyframes slideUp {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        @keyframes fadeOut {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        /* Auth Screen */
+        #auth {
+            display: none;
+            min-height: 100vh;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .auth-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            animation: slideIn 0.8s ease-out;
+        }
+
+        .auth-logo {
+            width: 100px;
+            height: auto;
+            margin-bottom: 20px;
+            border-radius: 15px;
+        }
+
+        .auth-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: #1565c0;
+        }
+
+        .auth-subtitle {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.5;
+        }
+
+        .auth-form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #1565c0;
+        }
+
+        input[type="text"], input[type="password"], select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e3f2fd;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        input[type="text"]:focus, input[type="password"]:focus, select:focus {
+            outline: none;
+            border-color: #42a5f5;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(66, 165, 245, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(66, 165, 245, 0.4);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #81c784 0%, #4caf50 100%);
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-ghost {
+            background: #f2f5ff;
+            color: #3353ce;
+            box-shadow: 0 2px 10px rgba(51, 83, 206, 0.2);
+        }
+
+        .btn-warn {
+            background: #fff7ed;
+            color: #b45309;
+            border: 1px solid #fde68a;
+            box-shadow: 0 2px 10px rgba(253, 230, 138, 0.3);
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(76, 175, 80, 0.4);
+        }
+
+        .generated-creds {
+            background: #e8f5e8;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            border-left: 4px solid #4caf50;
+        }
+
+        @keyframes slideIn {
+            0% { transform: translateY(50px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+
+        /* Main App */
+        #app {
+            display: none;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            padding: 28px 22px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+
+        .header-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            object-fit: cover;
+            box-shadow: 0 6px 18px rgba(66, 165, 245, 0.3);
+        }
+
+        .header-info h1 {
+            font-size: 28px;
+            letter-spacing: 0.3px;
+            color: #026be2;
+            margin: 0;
+        }
+
+        .header-info p {
+            margin: 4px 0 0;
+            color: #64748b;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .user-info {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 8px 16px;
+            border-radius: 20px;
+            color: #1565c0;
+            font-weight: 600;
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+
+        .nav-tab {
+            border: none;
+            background: #eaf0ff;
+            color: #3554d1;
+            padding: 12px 20px;
+            border-radius: 25px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(53, 84, 209, 0.1);
+        }
+
+        .nav-tab.active {
+            background: linear-gradient(135deg, #42a5f5, #1e88e5);
+            color: white;
+            box-shadow: 0 6px 20px rgba(66, 165, 245, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .nav-tab:hover:not(.active) {
+            background: #d6e7ff;
+            transform: translateY(-1px);
+        }
+
+        /* About Modal */
+        .about-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .about-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        .about-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8faff 100%);
+            border-radius: 25px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 85vh;
+            overflow-y: auto;
+            padding: 40px;
+            position: relative;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            animation: slideInModal 0.3s ease-out;
+        }
+
+        @keyframes slideInModal {
+            0% { transform: scale(0.8) translateY(50px); opacity: 0; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .about-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .about-title {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, #42a5f5, #1e88e5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .about-subtitle {
+            color: #666;
+            font-size: 1.2rem;
+        }
+
+        .about-section {
+            margin-bottom: 30px;
+        }
+
+        .about-section h3 {
+            color: #1565c0;
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .close-about {
+            position: absolute;
+            top: 20px;
+            right: 25px;
+            background: #f44336;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Content Areas */
+        .content-section {
+            display: none;
+        }
+
+        .content-section.active {
+            display: block;
+            animation: fadeInContent 0.5s ease-out;
+        }
+
+        @keyframes fadeInContent {
+            0% { opacity: 0; transform: translateY(20px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Cards */
+        .card-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.95);
+            border: 1px solid #eef2f7;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .card h2 {
+            margin: 0 0 20px;
+            font-size: 1.5rem;
+            color: #1565c0;
+        }
+
+        .card h3 {
+            margin: 0 0 15px;
+            font-size: 1.2rem;
+            color: #1565c0;
+        }
+
+        /* Form Elements */
+        .field {
+            display: grid;
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .field label {
+            font-weight: 600;
+            color: #1565c0;
+        }
+
+        .field input, .field select, .field textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            background: #fbfdff;
+            transition: all 0.3s ease;
+        }
+
+        .field input:focus, .field select:focus, .field textarea:focus {
+            border-color: #42a5f5;
+            box-shadow: 0 0 0 3px rgba(66, 165, 245, 0.1);
+            outline: none;
+        }
+
+        .row {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+
+        /* Image Upload */
+        .image-upload {
+            border: 2px dashed #42a5f5;
+            border-radius: 12px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #f8faff;
+        }
+
+        .image-upload:hover {
+            border-color: #1e88e5;
+            background: #e3f2fd;
+        }
+
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 8px;
+            margin: 10px auto;
+            display: none;
+        }
+
+        .image-preview.show {
+            display: block;
+        }
+
+        /* Lists */
+        .item-list {
+            display: grid;
+            gap: 15px;
+        }
+
+        .list-item {
+            background: #f9fbff;
+            border: 1px solid #eaeef6;
+            border-radius: 12px;
+            padding: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .list-item:hover {
+            background: white;
+            border-color: #42a5f5;
+            transform: translateY(-2px);
+        }
+
+        .list-item h4 {
+            color: #1565c0;
+            margin-bottom: 10px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #eef2ff;
+            border-radius: 20px;
+            padding: 6px 12px;
+            font-size: 12px;
+            color: #334155;
+            margin: 4px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* KPI Metrics */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .kpi-box {
+            background: #f5f8ff;
+            border: 1px solid #e6ecfb;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-box:hover {
+            background: white;
+            border-color: #42a5f5;
+        }
+
+        .kpi-metric {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1565c0;
+            margin-bottom: 5px;
+        }
+
+        .kpi-label {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        /* Event Categories */
+        .event-columns {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 25px 0;
+        }
+
+        .event-column {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .event-column.urgent {
+            border-left: 5px solid #f44336;
+        }
+
+        .event-column.medium {
+            border-left: 5px solid #2196f3;
+        }
+
+        .event-column.relaxed {
+            border-left: 5px solid #4caf50;
+        }
+
+        .event-column h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .event-column.urgent h3 {
+            color: #f44336;
+        }
+
+        .event-column.medium h3 {
+            color: #2196f3;
+        }
+
+        .event-column.relaxed h3 {
+            color: #4caf50;
+        }
+
+        /* Campus Map */
+        .campus-map {
+            background: linear-gradient(180deg, #f0f7ff, #eef2ff);
+            border: 2px solid #e4e8f5;
+            border-radius: 16px;
+            height: 400px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-svg {
+            width: 100%;
+            height: 100%;
+        }
+
+        .location-icon {
+            font-size: 20px;
+            text-align: center;
+            display: block;
+            line-height: 1;
+        }
+
+        /* Landmarks */
+        .landmarks-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .landmark-item {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .landmark-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .landmark-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        /* Chatbot */
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .chatbot-btn {
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border: none;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(66, 165, 245, 0.4);
+            transition: all 0.3s ease;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: bounce 2s infinite;
+        }
+
+        .chatbot-btn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(66, 165, 245, 0.5);
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+
+        .chatbot-window {
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            width: 350px;
+            height: 450px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+            display: none;
+            flex-direction: column;
+        }
+
+        .chatbot-window.show {
+            display: flex;
+            animation: slideInChat 0.3s ease-out;
+        }
+
+        @keyframes slideInChat {
+            0% { opacity: 0; transform: scale(0.8) translateY(20px); }
+            100% { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        .chatbot-header {
+            padding: 20px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: linear-gradient(135deg, #42a5f5 0%, #1e88e5 100%);
+            color: white;
+            border-radius: 20px 20px 0 0;
+        }
+
+        .chatbot-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chatbot-input {
+            display: flex;
+            padding: 20px;
+            border-top: 2px solid #f0f0f0;
+            gap: 10px;
+            background: #f8f9fa;
+            border-radius: 0 0 20px 20px;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 20px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #42a5f5, #1e88e5);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot {
+            background: #f3f4f6;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4caf50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s ease;
+            z-index: 2000;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .header-info h1 {
+                font-size: 1.8rem;
+            }
+
+            .card-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .nav-tabs {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .nav-tab {
+                width: 200px;
+                text-align: center;
+            }
+
+            .chatbot-window {
+                width: 300px;
+                height: 400px;
+            }
+
+            .event-columns {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Utility */
+        .hidden {
+            display: none !important;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+
+        .two-column {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .two-column {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, #e3f2fd, transparent);
+            margin: 20px 0;
+        }
+
+        .contact-info {
+            background: #e8f5e8;
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+        }
+
+        .event-image {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <!-- Splash Screen -->
+    <div id="splash">
+        <div class="logo-container">
+            <img src="logo.jpeg" alt="AI Smart Campus Companion Logo">
+        </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // Global Variables
+        let currentUser = null;
+        let lostItems = [];
+        let foundItems = [];
+        let foodVendors = [];
+        let academicProfiles = [];
+        let campusEvents = [];
+
+        // Campus Map Graph with icons and symbols
+        const campusGraph = {
+            nodes: {
+                A: { x: 80, y: 70, label: 'Main Gate', icon: '🚪' },
+                B: { x: 280, y: 120, label: 'Library', icon: '📚' },
+                C: { x: 140, y: 210, label: 'Cafeteria', icon: '🍽️' },
+                D: { x: 460, y: 90, label: 'Academic Block A', icon: '🏢' },
+                E: { x: 460, y: 210, label: 'Academic Block B', icon: '🏢' },
+                F: { x: 80, y: 260, label: 'Gymnasium', icon: '🏋️' },
+                G: { x: 520, y: 260, label: 'Sports Complex', icon: '🏟️' }
+            },
+            edges: {
+                A: ['B', 'C'],
+                B: ['A', 'D', 'C'],
+                C: ['A', 'B', 'E', 'F'],
+                D: ['B', 'E'],
+                E: ['D', 'C', 'G'],
+                F: ['C'],
+                G: ['E']
+            }
+        };
+
+        // Initialize App
+        function initApp() {
+            setTimeout(() => {
+                document.getElementById('splash').style.display = 'none';
+                const existingSession = JSON.parse(localStorage.getItem('campusSession') || 'null');
+                if (existingSession) {
+                    currentUser = existingSession;
+                    showMainApp();
+                } else {
+                    document.getElementById('auth').style.display = 'flex';
+                }
+            }, 4000);
+
+            // Load data
+            loadData();
+            initializeDefaultData();
+        }
+
+        function loadData() {
+            lostItems = JSON.parse(localStorage.getItem('campusLostItems') || '[]');
+            foundItems = JSON.parse(localStorage.getItem('campusFoundItems') || '[]');
+            foodVendors = JSON.parse(localStorage.getItem('campusFoodVendors') || '[]');
+            academicProfiles = JSON.parse(localStorage.getItem('campusAcademicProfiles') || '[]');
+            campusEvents = JSON.parse(localStorage.getItem('campusEvents') || '[]');
+        }
+
+        function saveData() {
+            localStorage.setItem('campusLostItems', JSON.stringify(lostItems));
+            localStorage.setItem('campusFoundItems', JSON.stringify(foundItems));
+            localStorage.setItem('campusFoodVendors', JSON.stringify(foodVendors));
+            localStorage.setItem('campusAcademicProfiles', JSON.stringify(academicProfiles));
+            localStorage.setItem('campusEvents', JSON.stringify(campusEvents));
+        }
+
+        function initializeDefaultData() {
+            // Initialize food vendors if empty
+            if (foodVendors.length === 0) {
+                foodVendors = [
+                    {
+                        id: 'vendor1',
+                        name: 'Main Cafeteria',
+                        waitTime: 8,
+                        crowdLevel: 'medium',
+                        items: [
+                            { name: 'Veg Thali', stock: 15, price: 70, popularity: 0.9 },
+                            { name: 'Chicken Biryani', stock: 8, price: 90, popularity: 0.85 },
+                            { name: 'Masala Dosa', stock: 12, price: 45, popularity: 0.8 }
+                        ]
+                    },
+                    {
+                        id: 'vendor2',
+                        name: 'Coffee Corner',
+                        waitTime: 5,
+                        crowdLevel: 'low',
+                        items: [
+                            { name: 'Cappuccino', stock: 10, price: 60, popularity: 0.75 },
+                            { name: 'Paneer Sandwich', stock: 6, price: 55, popularity: 0.7 },
+                            { name: 'Chocolate Pastry', stock: 4, price: 40, popularity: 0.6 }
+                        ]
+                    },
+                    {
+                        id: 'vendor3',
+                        name: 'Snack Hub',
+                        waitTime: 3,
+                        crowdLevel: 'low',
+                        items: [
+                            { name: 'Samosa', stock: 20, price: 15, popularity: 0.9 },
+                            { name: 'Fresh Juice', stock: 8, price: 35, popularity: 0.65 },
+                            { name: 'Burger', stock: 7, price: 80, popularity: 0.75 }
+                        ]
+                    }
+                ];
+            }
+
+            // Initialize events if empty
+            if (campusEvents.length === 0) {
+                const today = new Date();
+                campusEvents = [
+                    {
+                        id: 'event1',
+                        title: 'AI & ML Workshop',
+                        time: 'Today 6:00 PM',
+                        location: 'Auditorium',
+                        category: 'tech',
+                        description: 'Learn the fundamentals of AI and Machine Learning',
+                        attendees: 45,
+                        capacity: 100,
+                        organizer: 'Tech Club',
+                        deadline: new Date(today.getTime() + 1 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        image: null
+                    },
+                    {
+                        id: 'event2',
+                        title: 'Career Fair 2025',
+                        time: 'Tomorrow 10:00 AM',
+                        location: 'Sports Hall',
+                        category: 'career',
+                        description: 'Meet recruiters from top companies',
+                        attendees: 150,
+                        capacity: 200,
+                        organizer: 'Placement Cell',
+                        deadline: new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        image: null
+                    },
+                    {
+                        id: 'event3',
+                        title: 'Cultural Fest Opening',
+                        time: 'Dec 20, 7:00 PM',
+                        location: 'Main Ground',
+                        category: 'cultural',
+                        description: 'Grand opening ceremony of annual cultural festival',
+                        attendees: 80,
+                        capacity: 500,
+                        organizer: 'Cultural Committee',
+                        deadline: new Date(today.getTime() + 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+                        image: null
+                    }
+                ];
+            }
+
+            saveData();
+        }
+
+        // About Modal Functions
+        function showAbout() {
+            document.getElementById('aboutModal').classList.add('show');
+        }
+
+        function closeAbout() {
+            document.getElementById('aboutModal').classList.remove('show');
+        }
+
+        // Image Preview Function
+        function previewImage(input, previewId) {
+            const preview = document.getElementById(previewId);
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.src = e.target.result;
+                    preview.classList.add('show');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Authentication Functions
+        function showLoginForm() {
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function showSignupForm() {
+            document.getElementById('authButtons').classList.add('hidden');
+            document.getElementById('signupForm').classList.remove('hidden');
+        }
+
+        function showAuthButtons() {
+            document.getElementById('authButtons').classList.remove('hidden');
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('signupForm').classList.add('hidden');
+            document.getElementById('generatedCredentials').classList.add('hidden');
+        }
+
+        function handleSignup() {
+            const name = document.getElementById('signupName').value.trim();
+            const role = document.getElementById('signupRole').value;
+
+            if (!name) {
+                showToast('Please enter your full name', 'error');
+                return;
+            }
+
+            // Generate credentials
+            const username = 'CAMP' + Math.random().toString(36).substring(2, 8).toUpperCase();
+            const password = Math.random().toString(36).substring(2, 10);
+
+            // Save user
+            const users = JSON.parse(localStorage.getItem('campusUsers') || '[]');
+            const newUser = {
+                id: Date.now(),
+                name: name,
+                role: role,
+                username: username,
+                password: password,
+                createdAt: new Date().toISOString()
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('campusUsers', JSON.stringify(users));
+
+            // Display credentials
+            document.getElementById('genUsername').textContent = username;
+            document.getElementById('genPassword').textContent = password;
+            document.getElementById('generatedCredentials').classList.remove('hidden');
+
+            showToast('Account created successfully!', 'success');
+        }
+
+        function handleLogin() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+
+            if (!username || !password) {
+                showToast('Please enter both username and password', 'error');
+                return;
+            }
+
+            const users = JSON.parse(localStorage.getItem('campusUsers') || '[]');
+            const user = users.find(u => u.username === username && u.password === password);
+
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('campusSession', JSON.stringify(user));
+                showMainApp();
+                showToast('Welcome to AI Smart Campus Companion!', 'success');
+            } else {
+                showToast('Invalid credentials. Please check your username and password.', 'error');
+            }
+        }
+
+        function handleLogout() {
+            currentUser = null;
+            localStorage.removeItem('campusSession');
+            document.getElementById('app').style.display = 'none';
+            document.getElementById('auth').style.display = 'flex';
+            showAuthButtons();
+            showToast('Logged out successfully', 'success');
+        }
+
+        function showMainApp() {
+            document.getElementById('auth').style.display = 'none';
+            document.getElementById('app').style.display = 'block';
+            document.getElementById('app').classList.add('fade-in');
+            
+            // Set user name
+            document.getElementById('userWelcome').textContent = `Welcome, ${currentUser.name} (${currentUser.role})`;
+            
+            // Initialize all sections
+            updateLostFoundDisplay();
+            updateFoodHubDisplay();
+            generateFoodRecommendations();
+            displayCampusMap();
+            updateEventsDisplay();
+            refreshEventRecommendations();
+        }
+
+        // Navigation Functions
+        function showSection(sectionId) {
+            // Hide all sections
+            document.querySelectorAll('.content-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected section
+            document.getElementById(sectionId).classList.add('active');
+            
+            // Add active class to clicked tab
+            event.target.classList.add('active');
+            
+            // Refresh section-specific data
+            if (sectionId === 'food-hub') {
+                updateFoodHubDisplay();
+            } else if (sectionId === 'events') {
+                updateEventsDisplay();
+            } else if (sectionId === 'navigation') {
+                displayCampusMap();
+            }
+        }
+
+        // Lost & Found Functions
+        function reportLostItem() {
+            const name = document.getElementById('lostItemName').value.trim();
+            const description = document.getElementById('lostItemDesc').value.trim();
+            const location = document.getElementById('lostItemLoc').value.trim();
+            const reporterName = document.getElementById('lostReporterName').value.trim();
+            const reporterDept = document.getElementById('lostReporterDept').value.trim();
+            const reporterContact = document.getElementById('lostReporterContact').value.trim();
+            const imageFile = document.getElementById('lostItemImage').files[0];
+
+            if (!name || !reporterName || !reporterContact) {
+                showToast('Please fill in required fields (Item name, Your name, Contact)', 'error');
+                return;
+            }
+
+            const lostItem = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                location: location,
+                reportedBy: reporterName,
+                department: reporterDept,
+                contact: reporterContact,
+                timestamp: new Date().toISOString(),
+                type: 'lost',
+                image: imageFile ? URL.createObjectURL(imageFile) : null
+            };
+
+            lostItems.push(lostItem);
+            saveData();
+            updateLostFoundDisplay();
+            clearLostForm();
+            showToast('Lost item reported successfully!', 'success');
+        }
+
+        function reportFoundItem() {
+            const name = document.getElementById('foundItemName').value.trim();
+            const description = document.getElementById('foundItemDesc').value.trim();
+            const location = document.getElementById('foundItemLoc').value.trim();
+            const reporterName = document.getElementById('foundReporterName').value.trim();
+            const reporterDept = document.getElementById('foundReporterDept').value.trim();
+            const reporterContact = document.getElementById('foundReporterContact').value.trim();
+            const imageFile = document.getElementById('foundItemImage').files[0];
+
+            if (!name || !reporterName || !reporterContact) {
+                showToast('Please fill in required fields (Item name, Your name, Contact)', 'error');
+                return;
+            }
+
+            const foundItem = {
+                id: Date.now(),
+                name: name,
+                description: description,
+                location: location,
+                reportedBy: reporterName,
+                department: reporterDept,
+                contact: reporterContact,
+                timestamp: new Date().toISOString(),
+                type: 'found',
+                image: imageFile ? URL.createObjectURL(imageFile) : null
+            };
+
+            foundItems.push(foundItem);
+            saveData();
+            updateLostFoundDisplay();
+            
+            // Clear form
+            document.getElementById('foundItemName').value = '';
+            document.getElementById('foundItemDesc').value = '';
+            document.getElementById('foundItemLoc').value = '';
+            document.getElementById('foundReporterName').value = '';
+            document.getElementById('foundReporterDept').value = '';
+            document.getElementById('foundReporterContact').value = '';
+            document.getElementById('foundItemImage').value = '';
+            document.getElementById('foundPreview').classList.remove('show');
+            
+            showToast('Found item added successfully!', 'success');
+        }
+
+        function clearLostForm() {
+            document.getElementById('lostItemName').value = '';
+            document.getElementById('lostItemDesc').value = '';
+            document.getElementById('lostItemLoc').value = '';
+            document.getElementById('lostReporterName').value = '';
+            document.getElementById('lostReporterDept').value = '';
+            document.getElementById('lostReporterContact').value = '';
+            document.getElementById('lostItemImage').value = '';
+            document.getElementById('lostPreview').classList.remove('show');
+        }
+
+        function updateLostFoundDisplay() {
+            // Update counts
+            document.getElementById('lostCount').textContent = lostItems.length;
+            document.getElementById('foundCount').textContent = foundItems.length;
+
+            // Find matches
+            const matches = findMatches();
+            document.getElementById('matchCount').textContent = matches.length;
+
+            // Display matched items
+            displayMatchedItems(matches);
+            
+            // Display lists
+            displayLostItems();
+            displayFoundItems();
+        }
+
+        function findMatches() {
+            const matches = [];
+            
+            lostItems.forEach(lostItem => {
+                foundItems.forEach(foundItem => {
+                    const score = calculateMatchScore(lostItem, foundItem);
+                    if (score > 0.5) {
+                        matches.push({
+                            lost: lostItem,
+                            found: foundItem,
+                            score: score
+                        });
+                    }
+                });
+            });
+
+            return matches.sort((a, b) => b.score - a.score);
+        }
+
+        function calculateMatchScore(lostItem, foundItem) {
+            let score = 0;
+            
+            // Name similarity
+            if (lostItem.name.toLowerCase().includes(foundItem.name.toLowerCase()) ||
+                foundItem.name.toLowerCase().includes(lostItem.name.toLowerCase())) {
+                score += 0.4;
+            }
+            
+            // Description similarity
+            if (lostItem.description && foundItem.description) {
+                const lostWords = lostItem.description.toLowerCase().split(' ');
+                const foundWords = foundItem.description.toLowerCase().split(' ');
+                const commonWords = lostWords.filter(word => foundWords.includes(word));
+                score += (commonWords.length / Math.max(lostWords.length, foundWords.length)) * 0.3;
+            }
+            
+            // Location proximity
+            if (lostItem.location && foundItem.location &&
+                lostItem.location.toLowerCase() === foundItem.location.toLowerCase()) {
+                score += 0.3;
+            }
+            
+            return score;
+        }
+
+        function displayMatchedItems(matches) {
+            const container = document.getElementById('matchedItems');
+            
+            if (matches.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No matches found yet. Report items to see AI-powered matches!</div>';
+                return;
+            }
+
+            container.innerHTML = matches.map(match => `
+                <div class="list-item">
+                    <h4>🔗 Potential Match (${Math.round(match.score * 100)}% confidence)</h4>
+                    <p><strong>Lost:</strong> ${match.lost.name} - ${match.lost.description}</p>
+                    <p><strong>Found:</strong> ${match.found.name} - ${match.found.description}</p>
+                    <div class="contact-info">
+                        <p><strong>Lost by:</strong> ${match.lost.reportedBy} (${match.lost.department}) - ${match.lost.contact}</p>
+                        <p><strong>Found by:</strong> ${match.found.reportedBy} (${match.found.department}) - ${match.found.contact}</p>
+                    </div>
+                    <div class="row">
+                        <span class="pill">📍 Lost at: ${match.lost.location || 'Not specified'}</span>
+                        <span class="pill">📍 Found at: ${match.found.location || 'Not specified'}</span>
+                        <button class="btn btn-secondary" onclick="confirmMatch('${match.lost.id}', '${match.found.id}')">✅ Confirm Match</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayLostItems() {
+            const container = document.getElementById('lostItemsList');
+            
+            if (lostItems.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No lost items reported yet</div>';
+                return;
+            }
+
+            container.innerHTML = lostItems.slice(-5).reverse().map(item => `
+                <div class="list-item">
+                    <h4>${item.name}</h4>
+                    ${item.image ? `<img src="${item.image}" class="event-image" alt="Lost item image">` : ''}
+                    <p>${item.description || 'No description provided'}</p>
+                    <div class="contact-info">
+                        <p><strong>Contact:</strong> ${item.reportedBy} (${item.department || 'Dept not specified'}) - ${item.contact}</p>
+                    </div>
+                    <div class="row">
+                        <span class="pill">📍 ${item.location || 'Location not specified'}</span>
+                        <span class="pill">⏰ ${new Date(item.timestamp).toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function displayFoundItems() {
+            const container = document.getElementById('foundItemsList');
+            
+            if (foundItems.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No found items reported yet</div>';
+                return;
+            }
+
+            container.innerHTML = foundItems.slice(-5).reverse().map(item => `
+                <div class="list-item">
+                    <h4>${item.name}</h4>
+                    ${item.image ? `<img src="${item.image}" class="event-image" alt="Found item image">` : ''}
+                    <p>${item.description || 'No description provided'}</p>
+                    <div class="contact-info">
+                        <p><strong>Contact:</strong> ${item.reportedBy} (${item.department || 'Dept not specified'}) - ${item.contact}</p>
+                    </div>
+                    <div class="row">
+                        <span class="pill">📍 ${item.location || 'Location not specified'}</span>
+                        <span class="pill">⏰ ${new Date(item.timestamp).toLocaleString()}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function confirmMatch(lostId, foundId) {
+            lostItems = lostItems.filter(item => item.id != lostId);
+            foundItems = foundItems.filter(item => item.id != foundId);
+            saveData();
+            updateLostFoundDisplay();
+            showToast('🎉 Match confirmed! Items reunited!', 'success');
+        }
+
+        // Food Hub Functions
+        function updateFoodHubDisplay() {
+            displayFoodVendors();
+            updateFoodKPIs();
+        }
+
+        function displayFoodVendors() {
+            const container = document.getElementById('foodVendorsList');
+            
+            container.innerHTML = foodVendors.map(vendor => {
+                const crowdColor = vendor.crowdLevel === 'low' ? '#4caf50' : 
+                                   vendor.crowdLevel === 'medium' ? '#ff9800' : '#f44336';
+                
+                const itemsHtml = vendor.items.map(item => {
+                    const stockStatus = item.stock > 10 ? 'available' : item.stock > 0 ? 'limited' : 'out';
+                    const statusColor = stockStatus === 'available' ? '#4caf50' : 
+                                       stockStatus === 'limited' ? '#ff9800' : '#f44336';
+                    
+                    return `
+                        <div style="margin: 10px 0; padding: 10px; background: #f8f9fa; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <strong>${item.name}</strong>
+                                <span style="color: #666;">₹${item.price}</span>
+                            </div>
+                            <div class="row" style="margin-top: 8px;">
+                                <span class="pill" style="background: ${statusColor}; color: white;">
+                                    Stock: ${item.stock}
+                                </span>
+                                <button class="btn-ghost" onclick="orderFood('${vendor.id}', '${item.name}')" 
+                                        ${item.stock === 0 ? 'disabled' : ''}>
+                                    ${item.stock > 0 ? 'Order Now' : 'Out of Stock'}
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="list-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                            <h4>🍽️ ${vendor.name}</h4>
+                            <div class="row">
+                                <span class="pill" style="background: ${crowdColor}; color: white;">
+                                    <span class="status-dot" style="background: white;"></span>
+                                    ${vendor.crowdLevel.toUpperCase()}
+                                </span>
+                                <span class="pill">⏱️ ${vendor.waitTime} min wait</span>
+                            </div>
+                        </div>
+                        ${itemsHtml}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function updateFoodKPIs() {
+            if (foodVendors.length === 0) return;
+            
+            const avgWait = Math.round(foodVendors.reduce((sum, v) => sum + v.waitTime, 0) / foodVendors.length);
+            const busiestVendor = foodVendors.reduce((busiest, current) => 
+                current.waitTime > busiest.waitTime ? current : busiest
+            );
+            const lowStockItems = foodVendors.reduce((count, vendor) => 
+                count + vendor.items.filter(item => item.stock <= 5).length, 0
+            );
+            
+            document.getElementById('avgWaitTime').textContent = avgWait;
+            document.getElementById('busiestVendor').textContent = busiestVendor.name.split(' ')[0];
+            document.getElementById('lowStockCount').textContent = lowStockItems;
+        }
+
+        function generateFoodRecommendations() {
+            const container = document.getElementById('foodRecommendations');
+            const hour = new Date().getHours();
+            
+            const allItems = foodVendors.flatMap(vendor => 
+                vendor.items.map(item => ({
+                    ...item,
+                    vendor: vendor.name,
+                    vendorId: vendor.id,
+                    waitTime: vendor.waitTime,
+                    score: calculateFoodScore(item, vendor, hour)
+                }))
+            );
+            
+            const recommendations = allItems
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 3);
+            
+            if (recommendations.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No recommendations available</div>';
+                return;
+            }
+            
+            container.innerHTML = recommendations.map(item => `
+                <div class="list-item">
+                    <h4>🤖 ${item.name}</h4>
+                    <p>Available at <strong>${item.vendor}</strong></p>
+                    <div class="row">
+                        <span class="pill">💰 ₹${item.price}</span>
+                        <span class="pill">⏱️ ${item.waitTime} min wait</span>
+                        <span class="pill">🎯 ${Math.round(item.score * 100)}% match</span>
+                        <button class="btn-secondary" onclick="orderFood('${item.vendorId}', '${item.name}')">
+                            Order Recommended
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function calculateFoodScore(item, vendor, hour) {
+            let score = item.popularity || 0.5;
+            
+            // Lower wait time = higher score
+            score += vendor.waitTime < 5 ? 0.3 : vendor.waitTime < 10 ? 0.1 : -0.1;
+            
+            // Meal time bonus
+            if ((hour >= 12 && hour <= 14) || (hour >= 19 && hour <= 21)) {
+                score += 0.2;
+            }
+            
+            // Stock availability
+            score += item.stock > 10 ? 0.2 : item.stock > 0 ? 0.1 : -0.5;
+            
+            return Math.max(0, Math.min(1, score));
+        }
+
+        function orderFood(vendorId, itemName) {
+            const vendor = foodVendors.find(v => v.id === vendorId);
+            const item = vendor.items.find(i => i.name === itemName);
+            
+            if (item && item.stock > 0) {
+                item.stock--;
+                saveData();
+                updateFoodHubDisplay();
+                generateFoodRecommendations();
+                showToast(`✅ Order placed for ${itemName}!`, 'success');
+            } else {
+                showToast('❌ Sorry, item is out of stock!', 'error');
+            }
+        }
+
+        function predictCrowd() {
+            const hour = new Date().getHours();
+            const peakMultiplier = (hour >= 12 && hour <= 14) || (hour >= 17 && hour <= 19) ? 1.5 : 1;
+            
+            foodVendors.forEach(vendor => {
+                vendor.waitTime = Math.max(2, Math.round((vendor.waitTime + Math.random() * 4) * peakMultiplier));
+                vendor.crowdLevel = vendor.waitTime > 15 ? 'high' : vendor.waitTime > 8 ? 'medium' : 'low';
+            });
+            
+            saveData();
+            updateFoodHubDisplay();
+            showToast('🔮 AI prediction updated for next hour!', 'success');
+        }
+
+        function restockItems() {
+            foodVendors.forEach(vendor => {
+                vendor.items.forEach(item => {
+                    item.stock += Math.floor(Math.random() * 10) + 5;
+                });
+            });
+            
+            saveData();
+            updateFoodHubDisplay();
+            generateFoodRecommendations();
+            showToast('📦 Smart restocking completed!', 'success');
+        }
+
+        // Academic Partner Functions
+        function saveAcademicProfile() {
+            const profile = {
+                id: currentUser.id,
+                name: document.getElementById('profileName').value.trim(),
+                department: document.getElementById('profileDept').value.trim(),
+                courses: document.getElementById('profileCourses').value.trim().split(',').map(s => s.trim().toUpperCase()).filter(Boolean),
+                studyStyle: document.getElementById('profileStyle').value,
+                gpa: parseFloat(document.getElementById('profileGPA').value) || 0,
+                timeSlots: document.getElementById('profileSlots').value.trim().split(',').map(s => s.trim()).filter(Boolean),
+                userId: currentUser.id,
+                createdAt: new Date().toISOString()
+            };
+
+            if (!profile.name || !profile.department || profile.courses.length === 0) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+
+            // Remove existing profile for this user
+            academicProfiles = academicProfiles.filter(p => p.userId !== currentUser.id);
+            academicProfiles.push(profile);
+            saveData();
+            
+            displayStudyBuddies();
+            showToast('🎓 Profile saved! Finding compatible study partners...', 'success');
+        }
+
+        function displayStudyBuddies() {
+            const container = document.getElementById('studyBuddyList');
+            const myProfile = academicProfiles.find(p => p.userId === currentUser.id);
+            
+            if (!myProfile) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        Create your profile to discover compatible study partners!
+                    </div>
+                `;
+                return;
+            }
+
+            const otherProfiles = academicProfiles.filter(p => p.userId !== currentUser.id);
+            if (otherProfiles.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        You're the first one here! More students will join soon.
+                    </div>
+                `;
+                return;
+            }
+
+            const matches = otherProfiles.map(profile => ({
+                profile,
+                score: calculateStudyMatchScore(myProfile, profile)
+            })).sort((a, b) => b.score - a.score).slice(0, 5);
+
+            container.innerHTML = matches.map(match => `
+                <div class="list-item">
+                    <h4>👤 ${match.profile.name}</h4>
+                    <p><strong>Department:</strong> ${match.profile.department} | <strong>GPA:</strong> ${match.profile.gpa}</p>
+                    <p><strong>Courses:</strong> ${match.profile.courses.join(', ')}</p>
+                    <p><strong>Study Style:</strong> ${match.profile.studyStyle} | <strong>Available:</strong> ${match.profile.timeSlots.join(', ')}</p>
+                    <div class="row">
+                        <span class="pill">🤖 ${Math.round(match.score * 100)}% compatibility</span>
+                        <button class="btn-secondary" onclick="connectWithBuddy('${match.profile.name}')">Connect</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function calculateStudyMatchScore(profile1, profile2) {
+            let score = 0;
+            
+            // Course overlap
+            const commonCourses = profile1.courses.filter(course => profile2.courses.includes(course));
+            const courseScore = commonCourses.length / Math.max(profile1.courses.length, profile2.courses.length);
+            score += courseScore * 0.4;
+            
+            // Time slot overlap
+            const commonSlots = profile1.timeSlots.filter(slot => profile2.timeSlots.includes(slot));
+            const timeScore = commonSlots.length > 0 ? 1 : 0;
+            score += timeScore * 0.3;
+            
+            // GPA similarity
+            const gpaDiff = Math.abs(profile1.gpa - profile2.gpa);
+            const gpaScore = Math.max(0, 1 - (gpaDiff / 5));
+            score += gpaScore * 0.2;
+            
+            // Study style compatibility
+            const styleScore = profile1.studyStyle === profile2.studyStyle || 
+                               profile1.studyStyle === 'mixed' || 
+                               profile2.studyStyle === 'mixed' ? 1 : 0.5;
+            score += styleScore * 0.1;
+            
+            return score;
+        }
+
+        function connectWithBuddy(buddyName) {
+            showToast(`📚 Connection request sent to ${buddyName}!`, 'success');
+        }
+
+        // Events Functions
+        function createEvent() {
+            const event = {
+                id: Date.now(),
+                title: document.getElementById('eventTitle').value.trim(),
+                time: document.getElementById('eventTime').value.trim(),
+                location: document.getElementById('eventLocation').value.trim(),
+                category: document.getElementById('eventCategory').value,
+                description: document.getElementById('eventDescription').value.trim(),
+                capacity: parseInt(document.getElementById('eventCapacity').value) || 50,
+                deadline: document.getElementById('eventDeadline').value,
+                attendees: 0,
+                organizer: currentUser.name,
+                createdAt: new Date().toISOString(),
+                image: null
+            };
+
+            if (!event.title || !event.time || !event.location || !event.deadline) {
+                showToast('Please fill in all required fields including deadline', 'error');
+                return;
+            }
+
+            // Handle image upload
+            const imageFile = document.getElementById('eventImage').files[0];
+            if (imageFile) {
+                event.image = URL.createObjectURL(imageFile);
+            }
+
+            campusEvents.push(event);
+            saveData();
+            updateEventsDisplay();
+            
+            // Clear form
+            document.getElementById('eventTitle').value = '';
+            document.getElementById('eventTime').value = '';
+            document.getElementById('eventLocation').value = '';
+            document.getElementById('eventDescription').value = '';
+            document.getElementById('eventCapacity').value = '';
+            document.getElementById('eventDeadline').value = '';
+            document.getElementById('eventImage').value = '';
+            document.getElementById('eventPreview').classList.remove('show');
+            
+            showToast('🎉 Event created successfully!', 'success');
+        }
+
+        function updateEventsDisplay() {
+            displayAllEvents();
+            categorizeEventsByDeadline();
+        }
+
+        function categorizeEventsByDeadline() {
+            const today = new Date();
+            const urgent = [];
+            const medium = [];
+            const relaxed = [];
+
+            campusEvents.forEach(event => {
+                if (!event.deadline) return;
+                
+                const deadline = new Date(event.deadline);
+                const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+                
+                if (daysLeft <= 3) {
+                    urgent.push(event);
+                } else if (daysLeft <= 7) {
+                    medium.push(event);
+                } else {
+                    relaxed.push(event);
+                }
+            });
+
+            displayEventCategory('urgentEvents', urgent, 'No urgent deadlines');
+            displayEventCategory('mediumEvents', medium, 'No medium deadlines');
+            displayEventCategory('relaxedEvents', relaxed, 'No extended deadlines');
+        }
+
+        function displayEventCategory(containerId, events, emptyMessage) {
+            const container = document.getElementById(containerId);
+            
+            if (events.length === 0) {
+                container.innerHTML = `<div style="text-align: center; padding: 20px; color: #666;">${emptyMessage}</div>`;
+                return;
+            }
+
+            container.innerHTML = events.map(event => {
+                const deadline = new Date(event.deadline);
+                const today = new Date();
+                const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+                const attendanceRate = (event.attendees / event.capacity) * 100;
+                const isNearCapacity = attendanceRate > 80;
+                
+                return `
+                    <div class="list-item" style="margin: 10px 0;">
+                        <h4>🎉 ${event.title}</h4>
+                        ${event.image ? `<img src="${event.image}" class="event-image" alt="Event image">` : ''}
+                        <p>${event.description}</p>
+                        <div class="row">
+                            <span class="pill">📅 ${event.time}</span>
+                            <span class="pill">📍 ${event.location}</span>
+                            <span class="pill" style="color: #f44336;">⏰ ${daysLeft} day${daysLeft !== 1 ? 's' : ''} left</span>
+                        </div>
+                        <div class="row" style="margin-top: 8px;">
+                            <span class="pill">👤 ${event.attendees}/${event.capacity}</span>
+                            <button class="btn-secondary ${isNearCapacity ? 'btn-warn' : ''}" 
+                                    onclick="rsvpEvent('${event.id}')"
+                                    ${event.attendees >= event.capacity ? 'disabled' : ''} 
+                                    style="font-size: 12px; padding: 6px 12px;">
+                                ${event.attendees >= event.capacity ? 'Full' : 'RSVP'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function displayAllEvents() {
+            const container = document.getElementById('allEventsList');
+            
+            if (campusEvents.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No events scheduled yet</div>';
+                return;
+            }
+
+            container.innerHTML = campusEvents.slice().reverse().map(event => {
+                const attendanceRate = (event.attendees / event.capacity) * 100;
+                const isNearCapacity = attendanceRate > 80;
+                
+                let deadlineInfo = '';
+                if (event.deadline) {
+                    const deadline = new Date(event.deadline);
+                    const today = new Date();
+                    const daysLeft = Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
+                    const deadlineColor = daysLeft <= 3 ? '#f44336' : daysLeft <= 7 ? '#2196f3' : '#4caf50';
+                    deadlineInfo = `<span class="pill" style="background: ${deadlineColor}; color: white;">⏰ Registration closes in ${daysLeft} day${daysLeft !== 1 ? 's' : ''}</span>`;
+                }
+                
+                return `
+                    <div class="list-item">
+                        <h4>🎉 ${event.title}</h4>
+                        ${event.image ? `<img src="${event.image}" class="event-image" alt="Event notice">` : ''}
+                        <p>${event.description}</p>
+                        <div class="row">
+                            <span class="pill">📅 ${event.time}</span>
+                            <span class="pill">📍 ${event.location}</span>
+                            <span class="pill" style="text-transform: uppercase;">${event.category}</span>
+                            ${deadlineInfo}
+                        </div>
+                        <div class="row" style="margin-top: 10px;">
+                            <span class="pill">👤 ${event.attendees}/${event.capacity} attending</span>
+                            <span class="pill">🎪 ${event.organizer}</span>
+                            <button class="btn-secondary ${isNearCapacity ? 'btn-warn' : ''}" 
+                                    onclick="rsvpEvent('${event.id}')"
+                                    ${event.attendees >= event.capacity ? 'disabled' : ''}>
+                                ${event.attendees >= event.capacity ? 'Full' : 
+                                  isNearCapacity ? 'Almost Full - RSVP' : 'RSVP'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function refreshEventRecommendations() {
+            const container = document.getElementById('eventRecommendations');
+            
+            if (campusEvents.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">No events available for recommendations</div>';
+                return;
+            }
+
+            // Simple recommendation based on user role and event category
+            const userRole = currentUser.role.toLowerCase();
+            const recommendations = campusEvents
+                .map(event => ({
+                    ...event,
+                    score: calculateEventScore(event, userRole)
+                }))
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 3);
+
+            container.innerHTML = recommendations.map(event => `
+                <div class="list-item">
+                    <h4>🎯 ${event.title}</h4>
+                    <p>${event.description}</p>
+                    <div class="row">
+                        <span class="pill">🤖 ${Math.round(event.score * 100)}% match for you</span>
+                        <span class="pill">📅 ${event.time}</span>
+                        <button class="btn-ghost" onclick="rsvpEvent('${event.id}')">Join Recommended</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function calculateEventScore(event, userRole) {
+            let score = 0.5; // Base score
+            
+            // Role-based preferences
+            if (userRole === 'student') {
+                if (event.category === 'tech' || event.category === 'cultural') score += 0.3;
+                if (event.category === 'career') score += 0.2;
+            } else if (userRole === 'faculty') {
+                if (event.category === 'academic' || event.category === 'tech') score += 0.3;
+                if (event.category === 'career') score += 0.1;
+            }
+            
+            // Availability (not too crowded)
+            const availabilityRatio = (event.capacity - event.attendees) / event.capacity;
+            score += availabilityRatio * 0.2;
+            
+            return Math.max(0, Math.min(1, score));
+        }
+
+        function rsvpEvent(eventId) {
+            const event = campusEvents.find(e => e.id == eventId);
+            
+            if (event && event.attendees < event.capacity) {
+                event.attendees++;
+                saveData();
+                updateEventsDisplay();
+                refreshEventRecommendations();
+                showToast(`🎫 RSVP confirmed for ${event.title}!`, 'success');
+            } else {
+                showToast('😔 Sorry, this event is already at full capacity', 'error');
+            }
+        }
+
+        // Campus Navigation Functions
+        function findRoute() {
+            const from = document.getElementById('navFrom').value;
+            const to = document.getElementById('navTo').value;
+            const preference = document.getElementById('navPreference').value;
+
+            if (!from || !to) {
+                showToast('Please select both starting point and destination', 'error');
+                return;
+            }
+
+            if (from === to) {
+                showToast('Starting point and destination cannot be the same', 'error');
+                return;
+            }
+
+            const path = findShortestPath(from, to);
+            if (path.length === 0) {
+                showToast('No route found between selected locations', 'error');
+                return;
+            }
+
+            displayRoute(path, preference);
+            drawRouteOnMap(path);
+        }
+
+        function findShortestPath(start, end) {
+            const queue = [[start]];
+            const visited = new Set([start]);
+
+            while (queue.length > 0) {
+                const path = queue.shift();
+                const current = path[path.length - 1];
+
+                if (current === end) {
+                    return path;
+                }
+
+                const neighbors = campusGraph.edges[current] || [];
+                for (const neighbor of neighbors) {
+                    if (!visited.has(neighbor)) {
+                        visited.add(neighbor);
+                        queue.push([...path, neighbor]);
+                    }
+                }
+            }
+
+            return [];
+        }
+
+        function displayRoute(path, preference) {
+            const routeResult = document.getElementById('routeResult');
+            const routeTitle = document.getElementById('routeTitle');
+            const routeDetails = document.getElementById('routeDetails');
+
+            const routeNames = path.map(nodeId => campusGraph.nodes[nodeId].label);
+            let baseTime = (path.length - 1) * 3; // 3 minutes per segment
+
+            // Apply preference modifier
+            let timeModifier = 1;
+            let description = '';
+            
+            switch (preference) {
+                case 'fastest':
+                    timeModifier = 1;
+                    description = 'Fastest route';
+                    break;
+                case 'scenic':
+                    timeModifier = 1.3;
+                    description = 'Scenic route with beautiful campus views';
+                    break;
+                case 'accessible':
+                    timeModifier = 1.2;
+                    description = 'Accessible route with ramps and elevators';
+                    break;
+            }
+
+            const estimatedTime = Math.round(baseTime * timeModifier);
+
+            routeTitle.textContent = `${description}: ${routeNames.join(' → ')}`;
+            routeDetails.textContent = `Distance: ${path.length - 1} segments | Estimated time: ${estimatedTime} minutes`;
+            
+            routeResult.classList.remove('hidden');
+        }
+
+        function displayCampusMap() {
+            const mapContainer = document.getElementById('campusMap');
+            mapContainer.innerHTML = '';
+            
+            const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+            svg.setAttribute('class', 'map-svg');
+            svg.setAttribute('viewBox', '0 0 600 320');
+            
+            // Draw edges (paths)
+            for (const [nodeA, neighbors] of Object.entries(campusGraph.edges)) {
+                neighbors.forEach(nodeB => {
+                    if (nodeA < nodeB) { // Avoid drawing edges twice
+                        const pointA = campusGraph.nodes[nodeA];
+                        const pointB = campusGraph.nodes[nodeB];
+                        
+                        const line = document.createElementNS(svg.namespaceURI, 'line');
+                        line.setAttribute('x1', pointA.x);
+                        line.setAttribute('y1', pointA.y);
+                        line.setAttribute('x2', pointB.x);
+                        line.setAttribute('y2', pointB.y);
+                        line.setAttribute('stroke', '#c7d2fe');
+                        line.setAttribute('stroke-width', '4');
+                        svg.appendChild(line);
+                    }
+                });
+            }
+            
+            // Draw nodes (locations) with icons and labels
+            for (const [nodeId, node] of Object.entries(campusGraph.nodes)) {
+                const group = document.createElementNS(svg.namespaceURI, 'g');
+                
+                // Background circle
+                const circle = document.createElementNS(svg.namespaceURI, 'circle');
+                circle.setAttribute('cx', node.x);
+                circle.setAttribute('cy', node.y);
+                circle.setAttribute('r', '16');
+                circle.setAttribute('fill', '#42a5f5');
+                circle.setAttribute('stroke', 'white');
+                circle.setAttribute('stroke-width', '3');
+                group.appendChild(circle);
+                
+                // Icon (emoji text)
+                const icon = document.createElementNS(svg.namespaceURI, 'text');
+                icon.setAttribute('x', node.x);
+                icon.setAttribute('y', node.y + 4);
+                icon.setAttribute('text-anchor', 'middle');
+                icon.setAttribute('font-size', '12');
+                icon.textContent = node.icon;
+                group.appendChild(icon);
+                
+                // Label
+                const text = document.createElementNS(svg.namespaceURI, 'text');
+                text.setAttribute('x', node.x);
+                text.setAttribute('y', node.y + 35);
+                text.setAttribute('text-anchor', 'middle');
+                text.setAttribute('fill', '#1565c0');
+                text.setAttribute('font-size', '11');
+                text.setAttribute('font-weight', 'bold');
+                text.textContent = node.label;
+                group.appendChild(text);
+                
+                svg.appendChild(group);
+            }
+            
+            mapContainer.appendChild(svg);
+        }
+
+        function drawRouteOnMap(path) {
+            const svg = document.querySelector('#campusMap .map-svg');
+            
+            // Remove existing route
+            const existingRoute = svg.querySelectorAll('.route-path');
+            existingRoute.forEach(el => el.remove());
+            
+            // Draw new route
+            for (let i = 0; i < path.length - 1; i++) {
+                const pointA = campusGraph.nodes[path[i]];
+                const pointB = campusGraph.nodes[path[i + 1]];
+                
+                const line = document.createElementNS(svg.namespaceURI, 'line');
+                line.setAttribute('class', 'route-path');
+                line.setAttribute('x1', pointA.x);
+                line.setAttribute('y1', pointA.y);
+                line.setAttribute('x2', pointB.x);
+                line.setAttribute('y2', pointB.y);
+                line.setAttribute('stroke', '#f44336');
+                line.setAttribute('stroke-width', '6');
+                line.setAttribute('stroke-dasharray', '10 5');
+                svg.appendChild(line);
+            }
+        }
+
+        function resetMap() {
+            displayCampusMap();
+            document.getElementById('routeResult').classList.add('hidden');
+            document.getElementById('navFrom').value = '';
+            document.getElementById('navTo').value = '';
+        }
+
+        // Chatbot Functions
+        function toggleChatbot() {
+            const chatWindow = document.getElementById('chatbotWindow');
+            chatWindow.classList.toggle('show');
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const messagesContainer = document.getElementById('chatMessages');
+            const userMessage = input.value.trim();
+
+            if (!userMessage) return;
+
+            // Add user message
+            const userMessageEl = document.createElement('div');
+            userMessageEl.className = 'message user';
+            userMessageEl.textContent = userMessage;
+            messagesContainer.appendChild(userMessageEl);
+
+            input.value = '';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+            // Generate bot response
+            setTimeout(() => {
+                const botResponse = generateBotResponse(userMessage);
+                const botMessageEl = document.createElement('div');
+                botMessageEl.className = 'message bot';
+                botMessageEl.innerHTML = botResponse;
+                messagesContainer.appendChild(botMessageEl);
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }, 1000);
+        }
+
+        function generateBotResponse(message) {
+            const msg = message.toLowerCase();
+            
+            if (msg.includes('lost') || msg.includes('found')) {
+                return "I can help with lost & found! 🔍 Go to the Lost & Found section to report lost items or found items. Our AI will automatically match them for you. Don't forget to upload images and contact details!";
+            } else if (msg.includes('food') || msg.includes('hungry') || msg.includes('eat')) {
+                return "Feeling hungry? 🍽️ Check out the Food Hub section for live menus, wait times, and personalized AI recommendations based on your preferences!";
+            } else if (msg.includes('study') || msg.includes('academic') || msg.includes('partner')) {
+                return "Looking for study partners? 📚 Visit the Academic Partner section to create your profile and find compatible study buddies based on your courses and schedule!";
+            } else if (msg.includes('event') || msg.includes('happening')) {
+                return "Want to know what's happening? 🎉 The Events section shows all campus events with personalized recommendations. You can even create your own events with images and registration deadlines!";
+            } else if (msg.includes('map') || msg.includes('navigation') || msg.includes('direction')) {
+                return "Need directions? 🗺️ The Campus Navigation section has an interactive map with smart pathfinding and location icons. Choose from fastest, scenic, or accessible routes!";
+            } else if (msg.includes('help')) {
+                return "I'm your AI campus assistant! 🤖 I can help you with:<br>• Lost & Found items (with images)<br>• Food recommendations<br>• Study partner matching<br>• Campus events (with deadlines)<br>• Navigation & directions<br><br>What would you like to know about?";
+            } else {
+                const responses = [
+                    "That's interesting! How can I help you with campus services today?",
+                    "I'm here to help! Try asking about food, events, lost items, study partners, or navigation.",
+                    "Great question! Is there a specific campus service you need assistance with?",
+                    "I'd love to help! What aspect of campus life are you curious about?"
+                ];
+                return responses[Math.floor(Math.random() * responses.length)];
+            }
+        }
+
+        // Utility Functions
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize app when page loads
+        window.addEventListener('load', initApp);
+
+        // Close modals when clicking outside
+        document.addEventListener('click', (e) => {
+            const chatbot = document.querySelector('.chatbot-container');
+            const chatWindow = document.getElementById('chatbotWindow');
+            const aboutModal = document.getElementById('aboutModal');
+            
+            if (!chatbot.contains(e.target) && chatWindow.classList.contains('show')) {
+                chatWindow.classList.remove('show');
+            }
+            
+            if (e.target === aboutModal) {
+                aboutModal.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>>
+        <div class="splash-text">AI SMART CAMPUS COMPANION</div>
+    </div>
+
+    <!-- Authentication Screen -->
+    <div id="auth">
+        <div class="auth-container">
+            <img src="logo.jpeg" alt="Logo" class="auth-logo">
+            
+            <h1 class="auth-title">Welcome to AI Smart Campus Companion</h1>
+            <p class="auth-subtitle">Your comprehensive campus life assistant. Connect, explore, and thrive in your academic journey.</p>
+
+            <div id="authButtons">
+                <button class="btn" onclick="showLoginForm()">Sign In</button>
+                <button class="btn btn-secondary" onclick="showSignupForm()">Create Account</button>
+            </div>
+
+            <div id="loginForm" class="auth-form hidden">
+                <h3>Sign In to Your Account</h3>
+                <div class="form-group">
+                    <label for="loginUsername">Username</label>
+                    <input type="text" id="loginUsername" placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter your password">
+                </div>
+                <button class="btn" onclick="handleLogin()">Sign In</button>
+                <button class="btn btn-secondary" onclick="showAuthButtons()">Back</button>
+            </div>
+
+            <div id="signupForm" class="auth-form hidden">
+                <h3>Create Campus Account</h3>
+                <div class="form-group">
+                    <label for="signupName">Full Name</label>
+                    <input type="text" id="signupName" placeholder="Enter your full name">
+                </div>
+                <div class="form-group">
+                    <label for="signupRole">Role</label>
+                    <select id="signupRole">
+                        <option value="Student">Student</option>
+                        <option value="Faculty">Faculty</option>
+                    </select>
+                </div>
+                <button class="btn btn-secondary" onclick="handleSignup()">Generate Account</button>
+                <button class="btn" onclick="showAuthButtons()">Back</button>
+                
+                <div id="generatedCredentials" class="generated-creds hidden">
+                    <h4>Your Account Created Successfully!</h4>
+                    <p><strong>Username:</strong> <span id="genUsername"></span></p>
+                    <p><strong>Password:</strong> <span id="genPassword"></span></p>
+                    <p style="color: #666; font-size: 0.9rem; margin-top: 10px;">
+                        Please save these credentials safely. Use them to sign in.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- About Modal -->
+    <div id="aboutModal" class="about-modal">
+        <div class="about-content">
+            <button class="close-about" onclick="closeAbout()">×</button>
+            <div class="about-header">
+                <h1 class="about-title">Smart Campus Companion</h1>
+                <p class="about-subtitle">Your Essential Campus Life Assistant</p>
+            </div>
+
+            <div class="about-section">
+                <h3>🚀 Revolutionizing Campus Experiences Through AI-Powered Innovation</h3>
+                <p>Every student deserves a seamless campus journey. Our Smart Campus Companion app eliminates daily frustrations by integrating intelligent solutions into one unified platform.</p>
+            </div>
+
+            <div class="about-section">
+                <h3>🎯 Core Functionalities</h3>
+                
+                <h4>🔍 Lost & Found Recovery System</h4>
+                <ul>
+                    <li>Advanced image recognition matches lost items instantly</li>
+                    <li>Campus-wide search network with real-time updates</li>
+                    <li>Secure verification process for item returns</li>
+                </ul>
+
+                <h4>🍽️ Dining Optimization Hub</h4>
+                <ul>
+                    <li>Live cafeteria occupancy tracking</li>
+                    <li>AI-powered wait time predictions</li>
+                    <li>Personalized meal recommendations based on preferences</li>
+                </ul>
+
+                <h4>📚 Academic Collaboration Network</h4>
+                <ul>
+                    <li>Intelligent study partner matching algorithm</li>
+                    <li>Course-specific resource repository</li>
+                    <li>Automated study session scheduling</li>
+                </ul>
+
+                <h4>🎉 Campus Event Ecosystem</h4>
+                <ul>
+                    <li>Curated event recommendations engine</li>
+                    <li>Integrated calendar synchronization</li>
+                    <li>Group attendance coordination tools</li>
+                </ul>
+
+                <h4>🗺️ Next-Generation Navigation</h4>
+                <ul>
+                    <li>3D indoor/outdoor mapping system</li>
+                    <li>Accessibility-optimized routing</li>
+                    <li>Real-time location sharing capabilities</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h3>⚡ Technical Excellence</h3>
+                <p>Our platform leverages:</p>
+                <ul>
+                    <li>Computer vision for visual item recognition</li>
+                    <li>Predictive analytics for dining optimization</li>
+                    <li>Machine learning for personalized recommendations</li>
+                    <li>Real-time data processing for instant updates</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h3>📊 Measurable Impact</h3>
+                <p>Students gain:</p>
+                <ul>
+                    <li>5+ hours weekly saved from administrative tasks</li>
+                    <li>30% increase in campus engagement</li>
+                    <li>90% lost item recovery success rate</li>
+                    <li>Universal accessibility support</li>
+                </ul>
+            </div>
+
+            <div class="about-section">
+                <h3>🔮 Vision for the Future</h3>
+                <p>We're committed to continuous innovation, with upcoming features including:</p>
+                <ul>
+                    <li>IoT-enabled smart campus integration</li>
+                    <li>Multilingual support for global institutions</li>
+                    <li>Administrative analytics dashboard</li>
+                </ul>
+            </div>
+
+            <div class="about-section" style="text-align: center; margin-top: 40px;">
+                <h3>🌟 Join the Campus Revolution</h3>
+                <p style="font-size: 1.1rem; color: #1565c0; font-weight: 600;">Experience the future of student life with Smart Campus Companion.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Application -->
+    <div id="app">
+        <div class="main-header">
+            <div class="header-left">
+                <img src="logo.jpeg" alt="Campus Logo" class="header-logo">
+                <div class="header-info">
+                    <h1>AI SMART CAMPUS COMPANION</h1>
+                    <p>One Campus · One App · Infinite Possibilities</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <button class="btn btn-ghost" onclick="showAbout()">ℹ️ About Our Campus Companion</button>
+                <div class="user-info" id="userWelcome">Welcome, User</div>
+                <button class="btn" onclick="handleLogout()">Logout</button>
+            </div>
+        </div>
+
+        <!-- Navigation Tabs -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="showSection('lost-found')">🔍 LOST AND FOUND</button>
+            <button class="nav-tab" onclick="showSection('food-hub')">🍽️ FOOD HUB</button>
+            <button class="nav-tab" onclick="showSection('academic')">📚 ACADEMIC PARTNER</button>
+            <button class="nav-tab" onclick="showSection('events')">🎉 EVENTS</button>
+            <button class="nav-tab" onclick="showSection('navigation')">🗺️ CAMPUS NAVIGATION</button>
+        </div>
+
+        <!-- Lost & Found Section -->
+        <div id="lost-found" class="content-section active">
+            <div class="card-grid">
+                <div class="card">
+                    <h2>🔍 Report Lost Item</h2>
+                    <div class="field">
+                        <label>Item Name</label>
+                        <input id="lostItemName" placeholder="e.g., Wallet, Backpack, Phone">
+                    </div>
+                    <div class="field">
+                        <label>Description</label>
+                        <textarea id="lostItemDesc" rows="3" placeholder="Color, brand, special marks..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Last Seen Location</label>
+                        <input id="lostItemLoc" placeholder="e.g., Library - 1st floor">
+                    </div>
+                    <div class="field">
+                        <label>Upload Item Image</label>
+                        <div class="image-upload" onclick="document.getElementById('lostItemImage').click()">
+                            <input type="file" id="lostItemImage" accept="image/*" style="display: none;" onchange="previewImage(this, 'lostPreview')">
+                            📷 Click to upload image of lost item
+                            <img id="lostPreview" class="image-preview">
+                        </div>
+                    </div>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Your Name</label>
+                            <input id="lostReporterName" placeholder="Full Name">
+                        </div>
+                        <div class="field">
+                            <label>Department</label>
+                            <input id="lostReporterDept" placeholder="e.g., CSE, ECE">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Contact Number</label>
+                        <input id="lostReporterContact" placeholder="Phone number">
+                    </div>
+                    <div class="row">
+                        <button class="btn" onclick="reportLostItem()">Submit Report</button>
+                        <button class="btn" onclick="clearLostForm()">Clear</button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>📋 Report Found Item</h2>
+                    <div class="field">
+                        <label>Item Name</label>
+                        <input id="foundItemName" placeholder="What did you find?">
+                    </div>
+                    <div class="field">
+                        <label>Description</label>
+                        <textarea id="foundItemDesc" rows="3" placeholder="Describe the item..."></textarea>
+                    </div>
+                    <div class="field">
+                        <label>Found Location</label>
+                        <input id="foundItemLoc" placeholder="Where did you find it?">
+                    </div>
+                    <div class="field">
+                        <label>Upload Item Image</label>
+                        <div class="image-upload" onclick="document.getElementById('foundItemImage').click()">
+                            <input type="file" id="foundItemImage" accept="image/*" style="display: none;" onchange="previewImage(this, 'foundPreview')">
+                            📷 Click to upload image of found item
+                            <img id="foundPreview" class="image-preview">
+                        </div>
+                    </div>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Your Name</label>
+                            <input id="foundReporterName" placeholder="Full Name">
+                        </div>
+                        <div class="field">
+                            <label>Department</label>
+                            <input id="foundReporterDept" placeholder="e.g., CSE, ECE">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Contact Number</label>
+                        <input id="foundReporterContact" placeholder="Phone number">
+                    </div>
+                    <button class="btn btn-secondary" onclick="reportFoundItem()">Add to Found Items</button>
+                    
+                    <div class="divider"></div>
+                    <div class="kpi-grid">
+                        <div class="kpi-box">
+                            <div class="kpi-metric" id="lostCount">0</div>
+                            <div class="kpi-label">Lost Items</div>
+                        </div>
+                        <div class="kpi-box">
+                            <div class="kpi-metric" id="foundCount">0</div>
+                            <div class="kpi-label">Found Items</div>
+                        </div>
+                        <div class="kpi-box">
+                            <div class="kpi-metric" id="matchCount">0</div>
+                            <div class="kpi-label">AI Matches</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🤖 AI Matched Items</h2>
+                <div class="item-list" id="matchedItems">
+                    <div style="text-align: center; padding: 40px; color: #666;">
+                        No matches found yet. Report items to see AI-powered matches!
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <h3>Recent Lost Items</h3>
+                    <div class="item-list" id="lostItemsList">
+                        <div style="text-align: center; padding: 20px; color: #666;">No lost items reported yet</div>
+                    </div>
+                </div>
+                <div class="card">
+                    <h3>Recent Found Items</h3>
+                    <div class="item-list" id="foundItemsList">
+                        <div style="text-align: center; padding: 20px; color: #666;">No found items reported yet</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Food Hub Section -->
+        <div id="food-hub" class="content-section">
+            <div class="card-grid">
+                <div class="card">
+                    <h2>🤖 AI Food Recommendations</h2>
+                    <div class="item-list" id="foodRecommendations">
+                        <div style="text-align: center; padding: 20px; color: #666;">Loading recommendations...</div>
+                    </div>
+                    <button class="btn" onclick="generateFoodRecommendations()">Get New Suggestions</button>
+                </div>
+
+                <div class="card">
+                    <h2>📊 Campus Food Analytics</h2>
+                    <p style="color: #666; margin-bottom: 20px;">Real-time analysis for optimal dining experience</p>
+                    <div class="kpi-grid">
+                        <div class="kpi-box">
+                            <div class="kpi-metric" id="avgWaitTime">--</div>
+                            <div class="kpi-label">Avg Wait (min)</div>
+                        </div>
+                        <div class="kpi-box">
+                            <div class="kpi-metric" id="busiestVendor">--</div>
+                            <div class="kpi-label">Busiest Spot</div>
+                        </div>
+                        <div class="kpi-box">
+                            <div class="kpi-metric" id="lowStockCount">--</div>
+                            <div class="kpi-label">Low Stock Items</div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <button class="btn" onclick="predictCrowd()">🔮 Predict Next Hour</button>
+                        <button class="btn" onclick="restockItems()">📦 Quick Restock</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>🍽️ Live Campus Food Vendors</h2>
+                <div class="item-list" id="foodVendorsList">
+                    <div style="text-align: center; padding: 20px; color: #666;">Loading vendor information...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Academic Partner Section -->
+        <div id="academic" class="content-section">
+            <div class="card-grid">
+                <div class="card">
+                    <h2>👤 Your Academic Profile</h2>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Full Name</label>
+                            <input id="profileName" placeholder="Enter your name">
+                        </div>
+                        <div class="field">
+                            <label>Department</label>
+                            <input id="profileDept" placeholder="e.g., CSE, ECE, IT">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Courses (comma separated)</label>
+                        <input id="profileCourses" placeholder="e.g., AI, DSA, Web Development">
+                    </div>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Study Preference</label>
+                            <select id="profileStyle">
+                                <option value="group">Group Study</option>
+                                <option value="individual">Individual</option>
+                                <option value="mixed">Mixed</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Current GPA</label>
+                            <input id="profileGPA" type="number" step="0.1" placeholder="8.5" min="0" max="10">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Available Time Slots</label>
+                        <input id="profileSlots" placeholder="e.g., 17:00, 19:00, 21:00">
+                    </div>
+                    <button class="btn" onclick="saveAcademicProfile()">💾 Save & Find Matches</button>
+                </div>
+
+                <div class="card">
+                    <h2>🎯 Smart Study Buddy Matches</h2>
+                    <div class="item-list" id="studyBuddyList">
+                        <div style="text-align: center; padding: 40px; color: #666;">
+                            Create your profile to discover compatible study partners!
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📈 Academic Resources</h2>
+                <div class="card-grid">
+                    <div class="card">
+                        <h3>📖 Study Groups</h3>
+                        <p>Join or create study groups for your courses</p>
+                        <button class="btn" onclick="showToast('Study groups feature coming soon!')">Browse Groups</button>
+                    </div>
+                    <div class="card">
+                        <h3>🎓 Tutoring</h3>
+                        <p>Connect with tutors or offer tutoring services</p>
+                        <button class="btn" onclick="showToast('Tutoring marketplace coming soon!')">Find Tutors</button>
+                    </div>
+                    <div class="card">
+                        <h3>📝 Project Partners</h3>
+                        <p>Find teammates for group projects and assignments</p>
+                        <button class="btn" onclick="showToast('Project matching coming soon!')">Find Partners</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Events Section -->
+        <div id="events" class="content-section">
+            <div class="card-grid">
+                <div class="card">
+                    <h2>🤖 Personalized Event Recommendations</h2>
+                    <div class="item-list" id="eventRecommendations">
+                        <div style="text-align: center; padding: 20px; color: #666;">Loading personalized recommendations...</div>
+                    </div>
+                    <button class="btn" onclick="refreshEventRecommendations()">🔄 Refresh Recommendations</button>
+                </div>
+
+                <div class="card">
+                    <h2>➕ Create New Event</h2>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Event Title</label>
+                            <input id="eventTitle" placeholder="Enter event name">
+                        </div>
+                        <div class="field">
+                            <label>Date & Time</label>
+                            <input id="eventTime" placeholder="e.g., Dec 15, 6:00 PM">
+                        </div>
+                    </div>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Location</label>
+                            <input id="eventLocation" placeholder="e.g., Auditorium, Sports Hall">
+                        </div>
+                        <div class="field">
+                            <label>Category</label>
+                            <select id="eventCategory">
+                                <option value="tech">Technology</option>
+                                <option value="career">Career</option>
+                                <option value="cultural">Cultural</option>
+                                <option value="sports">Sports</option>
+                                <option value="academic">Academic</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Description</label>
+                        <textarea id="eventDescription" rows="3" placeholder="Describe your event..."></textarea>
+                    </div>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Expected Capacity</label>
+                            <input id="eventCapacity" type="number" placeholder="50" min="1">
+                        </div>
+                        <div class="field">
+                            <label>Registration Deadline</label>
+                            <input id="eventDeadline" type="date">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Event Image/Notice</label>
+                        <div class="image-upload" onclick="document.getElementById('eventImage').click()">
+                            <input type="file" id="eventImage" accept="image/*" style="display: none;" onchange="previewImage(this, 'eventPreview')">
+                            📷 Upload event poster or notice
+                            <img id="eventPreview" class="image-preview">
+                        </div>
+                    </div>
+                    <button class="btn btn-secondary" onclick="createEvent()">🎉 Create Event</button>
+                </div>
+            </div>
+
+            <!-- Event Categories by Registration Time -->
+            <div class="card">
+                <h2>📅 Events by Registration Deadline</h2>
+                <div class="event-columns">
+                    <div class="event-column urgent">
+                        <h3>⚠️ Closes Soon!</h3>
+                        <div id="urgentEvents">
+                            <div style="text-align: center; padding: 20px; color: #666;">No urgent deadlines</div>
+                        </div>
+                    </div>
+                    <div class="event-column medium">
+                        <h3>⏰ Have Some Time!</h3>
+                        <div id="mediumEvents">
+                            <div style="text-align: center; padding: 20px; color: #666;">No medium deadlines</div>
+                        </div>
+                    </div>
+                    <div class="event-column relaxed">
+                        <h3>✅ Have More Time</h3>
+                        <div id="relaxedEvents">
+                            <div style="text-align: center; padding: 20px; color: #666;">No extended deadlines</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📅 All Campus Events</h2>
+                <div class="item-list" id="allEventsList">
+                    <div style="text-align: center; padding: 20px; color: #666;">Loading events...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Campus Navigation Section -->
+        <div id="navigation" class="content-section">
+            <div class="card-grid">
+                <div class="card">
+                    <h2>🗺️ Smart Navigation System</h2>
+                    <div class="two-column">
+                        <div class="field">
+                            <label>Starting Point</label>
+                            <select id="navFrom">
+                                <option value="">Select starting location</option>
+                                <option value="A">🚪 Main Gate</option>
+                                <option value="B">📚 Library</option>
+                                <option value="C">🍽️ Cafeteria</option>
+                                <option value="D">🏢 Academic Block A</option>
+                                <option value="E">🏢 Academic Block B</option>
+                                <option value="F">🏋️ Gymnasium</option>
+                                <option value="G">🏟️ Sports Complex</option>
+                            </select>
+                        </div>
+                        <div class="field">
+                            <label>Destination</label>
+                            <select id="navTo">
+                                <option value="">Select destination</option>
+                                <option value="A">🚪 Main Gate</option>
+                                <option value="B">📚 Library</option>
+                                <option value="C">🍽️ Cafeteria</option>
+                                <option value="D">🏢 Academic Block A</option>
+                                <option value="E">🏢 Academic Block B</option>
+                                <option value="F">🏋️ Gymnasium</option>
+                                <option value="G">🏟️ Sports Complex</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label>Route Preference</label>
+                        <select id="navPreference">
+                            <option value="fastest">Fastest Route</option>
+                            <option value="scenic">Scenic Route</option>
+                            <option value="accessible">Accessible Route</option>
+                        </select>
+                    </div>
+                    <button class="btn" onclick="findRoute()">🧭 Find Optimal Route</button>
+                    
+                    <div id="routeResult" class="hidden" style="margin-top: 20px;">
+                        <div class="list-item">
+                            <h4 id="routeTitle"></h4>
+                            <p id="routeDetails"></p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h2>🏢 Campus Map</h2>
+                    <div class="campus-map" id="campusMap">
+                        <!-- Interactive campus map will be rendered here -->
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button class="btn" onclick="resetMap()">🔄 Reset Map</button>
+                        <button class="btn" onclick="showToast('Real-time location tracking coming soon!')">📍 My Location</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>📍 Campus Landmarks</h2>
+                <div class="landmarks-grid">
+                    <div class="landmark-item">
+                        <span class="landmark-icon">🚪</span>
+                        <h3>Main Gate</h3>
+                        <p>Primary entrance</p>
+                    </div>
+                    <div class="landmark-item">
+                        <span class="landmark-icon">📚</span>
+                        <h3>Library</h3>
+                        <p>Study & resources</p>
+                    </div>
+                    <div class="landmark-item">
+                        <span class="landmark-icon">🍽️</span>
+                        <h3>Cafeteria</h3>
+                        <p>Dining area</p>
+                    </div>
+                    <div class="landmark-item">
+                        <span class="landmark-icon">🏢</span>
+                        <h3>Academic Blocks</h3>
+                        <p>Lecture halls</p>
+                    </div>
+                    <div class="landmark-item">
+                        <span class="landmark-icon">🏋️</span>
+                        <h3>Gymnasium</h3>
+                        <p>Fitness center</p>
+                    </div>
+                    <div class="landmark-item">
+                        <span class="landmark-icon">🏟️</span>
+                        <h3>Sports Complex</h3>
+                        <p>Outdoor sports</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container">
+        <button class="chatbot-btn" onclick="toggleChatbot()">🤖</button>
+        <div class="chatbot-window" id="chatbotWindow">
+            <div class="chatbot-header">
+                <h3>Campus Assistant AI</h3>
+                <button onclick="toggleChatbot()" style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
+            </div>
+            <div class="chatbot-messages" id="chatMessages">
+                <div class="message bot">Hi! I'm your AI campus assistant. How can I help you today? 🤖</div>
+            </div>
+            <div class="chatbot-input">
+                <input id="chatInput" placeholder="Type your question..." onkeypress="if(event.key==='Enter')sendMessage()">
+                <button class="btn" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div
